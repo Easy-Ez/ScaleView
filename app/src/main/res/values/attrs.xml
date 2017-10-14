@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ScaleView">
+        <attr name="initialValue" format="float" />
+        <attr name="minValue" format="float" />
+        <attr name="maxVaule" format="float" />
+        <attr name="autoAlign" format="boolean" />
+        <attr name="graduationStep" format="float" />
+        <attr name="graduationLineMargin" format="dimension" />
+        <attr name="graduationTextColor" format="color" />
+        <attr name="graduationTextSize" format="dimension" />
+        <attr name="graduationTextMargin" format="dimension" />
+        <attr name="graduationLineColor" format="color" />
+        <attr name="graduationLineHeight" format="dimension" />
+        <attr name="graduationLineWidth" format="dimension" />
+
+        <attr name="indicator" format="reference" />
+    </declare-styleable>
+</resources>
