@@ -17,8 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.OverScroller;
 
-import java.math.BigDecimal;
-
 /**
  * Created by sadhu on 2017/10/13.
  * 描述:
@@ -32,6 +30,7 @@ public class ScaleView extends View {
     private float mCurrentValue;//当前值
     private float mGraduationLineMargin; // 刻度线间的间隔
     private float mGraduationStep;// 刻度的步进
+    private int mGraduationStepHelper;// 将刻度的步进转换成整数
     private int mGraduationLineColor;//刻度线颜色
     private float mGraduationLineWidth; // 刻度线宽
     private float mGraduationLineHeight; // 刻度线高
@@ -49,7 +48,13 @@ public class ScaleView extends View {
     private float mOffset;
     private float mMinOffset;
     private float mMaxOffset;
-    private float mContentWidth;
+    private float mStartX;
+    private int mStep;
+    private int mModStep;
+    private int mIntMinValue;
+    private int mIntMaxValue;
+    private float mBaselineY;
+    private boolean mIsFling;
 
     public ScaleView(Context context) {
         this(context, null);
@@ -74,6 +79,7 @@ public class ScaleView extends View {
         mAutoAlign = typedArray.getBoolean(R.styleable.ScaleView_autoAlign, true);
 
         mGraduationStep = typedArray.getFloat(R.styleable.ScaleView_graduationStep, 1);
+        mGraduationStepHelper = typedArray.getInt(R.styleable.ScaleView_graduationStepHelper, 1);
         mGraduationLineMargin = typedArray.getDimension(R.styleable.ScaleView_graduationLineMargin, dp2px(4));
         mGraduationLineColor = typedArray.getColor(R.styleable.ScaleView_graduationLineColor, ContextCompat.getColor(getContext(), R.color.colorE2));
         mGraduationLineWidth = typedArray.getDimension(R.styleable.ScaleView_graduationLineWidth, dp2px(2));
@@ -96,7 +102,7 @@ public class ScaleView extends View {
         mTextMargin = typedArray.getDimension(R.styleable.ScaleView_graduationTextMargin, dp2px(4));
         typedArray.recycle();
 
-        calculateContentWidth();
+        initData();
         mTextPaint = new Paint();
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(textColor);
@@ -106,6 +112,12 @@ public class ScaleView extends View {
         mGraduationPaint.setAntiAlias(true);
         mGraduationPaint.setColor(mGraduationLineColor);
         mGraduationPaint.setStrokeWidth(mGraduationLineWidth);
+        mBaselineY = getPaddingTop() + getPaddingBottom()
+                + Math.max(mIndicatorHeight, mGraduationLineHeight)
+                + Math.abs(mTextPaint.getFontMetrics().top)
+                + mTextMargin;
+
+
         mScroller = new OverScroller(getContext());
         mGestureDetectorCompat = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -122,7 +134,7 @@ public class ScaleView extends View {
                 } else if (mOffset > mMaxOffset) {
                     mOffset = mMaxOffset;
                 }
-                Log.i(TAG, "onScroll distanceX: " + distanceX + ";offset:" + mOffset);
+                //Log.i(TAG, "onScroll distanceX: " + distanceX + ";offset:" + mOffset);
                 invalidate();
                 return true;
             }
@@ -130,8 +142,9 @@ public class ScaleView extends View {
 
             @Override
             public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float velocityX, float velocityY) {
-                Log.i(TAG, "onFling: " + velocityX);
+                //Log.i(TAG, "onFling: " + velocityX);
                 mScroller.forceFinished(true);
+                mIsFling = true;
                 mScroller.fling(
                         (int) mOffset,
                         0,
@@ -148,23 +161,21 @@ public class ScaleView extends View {
         });
     }
 
-    private void calculateContentWidth() {
+    private void initData() {
+        // 转化为整数的步进
+        mStep = (int) (mGraduationStep * mGraduationStepHelper);
+        // 对modStep取余为0 表示需要画刻度值
+        mModStep = mStep * 10;
+        // 转化成整数的最小值
+        mIntMinValue = (int) (mMinValue * mGraduationStepHelper);
+        // 转化成整数的最大值
+        mIntMaxValue = (int) (mMaxValue * mGraduationStepHelper);
+        // 允许偏移(滑动)的最小值
         mMinOffset = 0;
+        // 允许偏移(滑动)的最大值
         mMaxOffset = (mMaxValue - mMinValue) / mGraduationStep * mGraduationLineMargin;
+        // 当前的偏移(滑动)值
         mOffset = (mInitialValue - mMinValue) / mGraduationStep * mGraduationLineMargin;
-        mContentWidth = mMaxOffset;
-        float v = mGraduationStep * 10;
-        BigDecimal decimal = new BigDecimal(mMinValue);
-        BigDecimal addDecimal = new BigDecimal(mGraduationStep);
-        while (decimal.floatValue() <= mMaxValue) {
-            // 画长刻度的条件
-            if (decimal.floatValue() % v == 0) {
-                mContentWidth += mGraduationLineWidth;
-            } else {
-                mContentWidth += mGraduationLineWidth / 2;
-            }
-            decimal = decimal.add(addDecimal);
-        }
     }
 
     @Override
@@ -218,45 +229,64 @@ public class ScaleView extends View {
         if (mScroller.computeScrollOffset()) {
             mOffset = mScroller.getCurrX();
             ViewCompat.postInvalidateOnAnimation(this);
-            Log.i(TAG, "computeScroll: " + mOffset);
+            //Log.i(TAG, "computeScroll: " + mOffset);
+        } else {
+            if (mIsFling) {
+                mIsFling = false;
+                if (mOffset != 0 && mOffset != mMaxOffset) {
+                    findFinalGraduation();
+                }
+            }
         }
     }
 
     private void drawGraduation(Canvas canvas) {
-        float startX = getPaddingLeft() + getWidth() / 2 - mOffset;
-        int step = 0;
-        float v = mGraduationStep * 10;
-        BigDecimal decimal = new BigDecimal(mMinValue);
-        BigDecimal addDecimal = new BigDecimal(mGraduationStep);
 
-
-        while (decimal.floatValue() <= mMaxValue) {
-            if (startX + step * mGraduationLineMargin > 0 && startX + step * mGraduationLineMargin < getWidth()) {
-                // 画长刻度的条件
-                if (decimal.floatValue() % v == 0) {
+        mStartX = getPaddingLeft() + getWidth() / 2 - mOffset;
+        int index = 0;
+        for (int i = mIntMinValue; i <= mIntMaxValue; i += mStep) {
+            if (mStartX + index * mGraduationLineMargin > 0 && mStartX + index * mGraduationLineMargin < getWidth()) {
+                if (i % mModStep == 0) {
                     mGraduationPaint.setStrokeWidth(mGraduationLineWidth);
-                    canvas.drawLine(startX + step * mGraduationLineMargin, getPaddingTop(), startX + step * mGraduationLineMargin, mGraduationLineHeight, mGraduationPaint);
-                    canvas.drawText(String.valueOf(decimal.intValue()), startX + step * mGraduationLineMargin, getPaddingTop() + getPaddingBottom()
-                            + Math.max(mIndicatorHeight, mGraduationLineHeight)
-                            + Math.abs(mTextPaint.getFontMetrics().top)
-                            + mTextMargin, mTextPaint);
+                    canvas.drawLine(mStartX + index * mGraduationLineMargin, getPaddingTop(), mStartX + index * mGraduationLineMargin, mGraduationLineHeight, mGraduationPaint);
+                    canvas.drawText(
+                            String.valueOf(i / mGraduationStepHelper),
+                            mStartX + index * mGraduationLineMargin,
+                            mBaselineY,
+                            mTextPaint);
                 } else {
                     mGraduationPaint.setStrokeWidth(mGraduationLineWidth / 2);
-                    canvas.drawLine(startX + step * mGraduationLineMargin, getPaddingTop(), startX + step * mGraduationLineMargin, mGraduationLineHeight / 2, mGraduationPaint);
+                    canvas.drawLine(mStartX + index * mGraduationLineMargin, getPaddingTop(), mStartX + index * mGraduationLineMargin, mGraduationLineHeight / 2, mGraduationPaint);
                 }
             }
-            decimal = decimal.add(addDecimal);
-            step++;
+            index++;
         }
-
-
     }
 
     /**
      * 寻找最终停留的刻度线
      */
     private void findFinalGraduation() {
-
+        int maxTarget = 0;
+        int index = 0;
+        for (int i = mIntMinValue; i <= mIntMaxValue; i += mStep) {
+            if (mGraduationLineMargin * index > mOffset) {
+                maxTarget = index;
+                break;
+            }
+            index++;
+        }
+        Log.i(TAG, "findFinalGraduation: " + maxTarget);
+        float maxTargetOffset = maxTarget * mGraduationLineMargin;
+        float minTargetOffset = (maxTarget - 1) * mGraduationLineMargin;
+        float startX = mOffset;
+        if (Math.abs(maxTargetOffset - mOffset) > Math.abs(minTargetOffset - mOffset)) {
+            mOffset = minTargetOffset;
+        } else {
+            mOffset = maxTargetOffset;
+        }
+        mScroller.startScroll((int) startX, 0, (int) (mOffset - startX), 0, 200);
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
 

@@ -6,6 +6,7 @@
         <attr name="maxVaule" format="float" />
         <attr name="autoAlign" format="boolean" />
         <attr name="graduationStep" format="float" />
+        <attr name="graduationStepHelper" format="integer" />
         <attr name="graduationLineMargin" format="dimension" />
         <attr name="graduationTextColor" format="color" />
         <attr name="graduationTextSize" format="dimension" />
