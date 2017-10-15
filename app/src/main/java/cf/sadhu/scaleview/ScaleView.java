@@ -9,12 +9,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.OverScroller;
+
+import java.text.DecimalFormat;
 
 /**
  * Created by sadhu on 2017/10/13.
@@ -56,6 +59,7 @@ public class ScaleView extends View {
     private boolean mIsFling;
     private OnGraduationValueChangeListener mOnGraduationValueChangeListener;
     private Paint.FontMetrics mTextfontMetrics;
+    private DecimalFormat mDecimalFormat;
 
 
     public ScaleView(Context context) {
@@ -80,10 +84,10 @@ public class ScaleView extends View {
 
         mGraduationStep = typedArray.getFloat(R.styleable.ScaleView_graduationStep, 1);
         mGraduationStepHelper = typedArray.getInt(R.styleable.ScaleView_graduationStepHelper, 1);
-        mGraduationLineMargin = typedArray.getDimension(R.styleable.ScaleView_graduationLineMargin, dp2px(4));
+        mGraduationLineMargin = typedArray.getDimension(R.styleable.ScaleView_graduationLineMargin, UIUtils.dp2pxF(4, getContext()));
         mGraduationLineColor = typedArray.getColor(R.styleable.ScaleView_graduationLineColor, ContextCompat.getColor(getContext(), R.color.colorE2));
-        mGraduationLineWidth = typedArray.getDimension(R.styleable.ScaleView_graduationLineWidth, dp2px(2));
-        mGraduationLineHeight = typedArray.getDimension(R.styleable.ScaleView_graduationLineHeight, dp2px(10));
+        mGraduationLineWidth = typedArray.getDimension(R.styleable.ScaleView_graduationLineWidth, UIUtils.dp2pxF(2, getContext()));
+        mGraduationLineHeight = typedArray.getDimension(R.styleable.ScaleView_graduationLineHeight, UIUtils.dp2pxF(10, getContext()));
 
         mIndicator = typedArray.getDrawable(R.styleable.ScaleView_indicator);
         if (mIndicator == null) {
@@ -91,7 +95,7 @@ public class ScaleView extends View {
         }
         mIndicatorWidth = mIndicator.getIntrinsicWidth();
         mIndicatorHeight = mIndicator.getIntrinsicHeight();
-        if (mIndicatorWidth == 0 || mIndicatorHeight == 0) {
+        if (mIndicatorWidth == -1 || mIndicatorHeight == -1) {
             mIndicatorWidth = mGraduationLineWidth;
             mIndicatorHeight = mGraduationLineHeight;
         }
@@ -99,7 +103,13 @@ public class ScaleView extends View {
 
         mTtextColor = typedArray.getColor(R.styleable.ScaleView_graduationTextColor, ContextCompat.getColor(getContext(), R.color.color33));
         mTextSize = typedArray.getDimension(R.styleable.ScaleView_graduationTextSize, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14f, getContext().getResources().getDisplayMetrics()));
-        mTextMargin = typedArray.getDimension(R.styleable.ScaleView_graduationTextMargin, dp2px(4));
+        mTextMargin = typedArray.getDimension(R.styleable.ScaleView_graduationTextMargin, UIUtils.dp2pxF(4, getContext()));
+
+        String formatStr = typedArray.getString(R.styleable.ScaleView_decimalFormat);
+        if (TextUtils.isEmpty(formatStr)) {
+            formatStr = "0";
+        }
+        mDecimalFormat = new DecimalFormat(formatStr);
         typedArray.recycle();
 
         initData();
@@ -240,24 +250,9 @@ public class ScaleView extends View {
         mIndicator.draw(canvas);
     }
 
-
-    @Override
-    public void computeScroll() {
-        super.computeScroll();
-        if (mScroller.computeScrollOffset()) {
-            mOffset = mScroller.getCurrX();
-            ViewCompat.postInvalidateOnAnimation(this);
-            //Log.i(TAG, "computeScroll: " + mOffset);
-        } else {
-            if (mIsFling) {
-                mIsFling = false;
-                if (mOffset != 0 && mOffset != mMaxOffset) {
-                    findFinalGraduation();
-                }
-            }
-        }
-    }
-
+    /**
+     * @param canvas
+     */
     private void drawGraduation(Canvas canvas) {
 
         mStartX = getPaddingLeft() + getWidth() / 2 - mOffset;
@@ -276,7 +271,7 @@ public class ScaleView extends View {
                             mGraduationPaint
                     );
                     canvas.drawText(
-                            String.valueOf(i / mGraduationStepHelper),
+                            mDecimalFormat.format((float) i / mGraduationStepHelper),
                             startX,
                             mBaselineY,
                             mTextPaint
@@ -299,6 +294,24 @@ public class ScaleView extends View {
             index++;
         }
     }
+
+    @Override
+    public void computeScroll() {
+        super.computeScroll();
+        if (mScroller.computeScrollOffset()) {
+            mOffset = mScroller.getCurrX();
+            ViewCompat.postInvalidateOnAnimation(this);
+            //Log.i(TAG, "computeScroll: " + mOffset);
+        } else {
+            if (mIsFling) {
+                mIsFling = false;
+                if (mOffset != 0 && mOffset != mMaxOffset) {
+                    findFinalGraduation();
+                }
+            }
+        }
+    }
+
 
     /**
      * 寻找最终停留的刻度线
@@ -327,8 +340,25 @@ public class ScaleView extends View {
     }
 
 
-    private float dp2px(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getContext().getResources().getDisplayMetrics());
+    public void setIndicatorDrawable(Drawable indicatorDrawable) {
+        mIndicator = indicatorDrawable;
+        mIndicatorWidth = mIndicator.getIntrinsicWidth();
+        mIndicatorHeight = mIndicator.getIntrinsicHeight();
+        if (mIndicatorWidth == -1 || mIndicatorHeight == -1) {
+            mIndicatorWidth = mGraduationLineWidth;
+            mIndicatorHeight = mGraduationLineHeight;
+        }
+        invalidate();
+    }
+
+    public void setInitialData(float minValue, float maxValue, float step, int stepHelper, float initialValue) {
+        mMinValue = minValue;
+        mMaxOffset = maxValue;
+        mGraduationStep = step;
+        mGraduationStepHelper = stepHelper;
+        mInitialValue = initialValue;
+        initData();
+        invalidate();
     }
 
     public void setOnGraduationValueChange(OnGraduationValueChangeListener listener) {

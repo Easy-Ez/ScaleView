@@ -13,7 +13,8 @@
         <attr name="graduationLineColor" format="color" />
         <attr name="graduationLineHeight" format="dimension" />
         <attr name="graduationLineWidth" format="dimension" />
-
         <attr name="indicator" format="reference" />
+        <attr name="decimalFormat" format="string" />
+
     </declare-styleable>
 </resources>

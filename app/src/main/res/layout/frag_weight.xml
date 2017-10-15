@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cf.sadhu.scaleview.MainActivity">
+
+
+    <TextView
+        android:id="@+id/tv_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/color_indicator"
+        android:textSize="36sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="70" />
+
+    <cf.sadhu.scaleview.ScaleView
+        android:id="@+id/sacleview"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/colorF6"
+        app:graduationLineColor="@color/colorE2"
+        app:graduationLineHeight="28dp"
+        app:graduationLineMargin="8dp"
+        app:graduationStep="0.1"
+        app:graduationStepHelper="10"
+        app:graduationTextMargin="6dp"
+        app:graduationTextSize="14sp"
+        app:indicator="@drawable/bg_indicator"
+        app:initialValue="65.5"
+        app:layout_constraintTop_toBottomOf="@id/tv_value"
+        app:maxVaule="86.1"
+        app:minValue="49" />
+</android.support.constraint.ConstraintLayout>
