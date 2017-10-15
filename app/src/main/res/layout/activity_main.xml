@@ -7,18 +7,29 @@
     tools:context="cf.sadhu.scaleview.MainActivity">
 
     <cf.sadhu.scaleview.ScaleView
+        android:id="@+id/sacleview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_purple"
-        app:graduationStepHelper="10"
         app:graduationLineColor="@android:color/white"
         app:graduationLineHeight="30dp"
         app:graduationLineMargin="8dp"
-        app:graduationStep="0.1"
+        app:graduationStep="0.5"
+        app:graduationStepHelper="10"
         app:graduationTextMargin="8dp"
         app:graduationTextSize="14sp"
         app:indicator="@drawable/bg_indicator"
-        app:initialValue="60"
+        app:initialValue="60.5"
         app:maxVaule="86"
         app:minValue="49" />
+
+    <TextView
+        android:id="@+id/tv_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sacleview" />
 </android.support.constraint.ConstraintLayout>
