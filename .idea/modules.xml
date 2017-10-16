@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/RuleView.iml" filepath="$PROJECT_DIR$/RuleView.iml" />
+      <module fileurl="file://D:\Android\gayhub\ScaleView\RuleView.iml" filepath="D:\Android\gayhub\ScaleView\RuleView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ScaleView.iml" filepath="$PROJECT_DIR$/.idea/ScaleView.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

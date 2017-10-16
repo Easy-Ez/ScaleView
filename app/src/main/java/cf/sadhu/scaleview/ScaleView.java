@@ -351,9 +351,13 @@ public class ScaleView extends View {
         invalidate();
     }
 
-    public void setInitialData(float minValue, float maxValue, float step, int stepHelper, float initialValue) {
+    public void initialData(float minValue, float maxValue, float step, int stepHelper) {
+        initialData(minValue, maxValue, step, stepHelper, (minValue + maxValue) / 2);
+    }
+
+    public void initialData(float minValue, float maxValue, float step, int stepHelper, float initialValue) {
         mMinValue = minValue;
-        mMaxOffset = maxValue;
+        mMaxValue = maxValue;
         mGraduationStep = step;
         mGraduationStepHelper = stepHelper;
         mInitialValue = initialValue;

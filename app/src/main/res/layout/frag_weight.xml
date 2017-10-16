@@ -35,4 +35,20 @@
         app:layout_constraintTop_toBottomOf="@id/tv_value"
         app:maxVaule="86.1"
         app:minValue="49" />
+
+
+    <TextView
+        android:id="@+id/tv_prev_step"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@color/color_indicator"
+        android:gravity="center"
+        android:padding="16sp"
+        android:text="@string/prev_step"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 </android.support.constraint.ConstraintLayout>

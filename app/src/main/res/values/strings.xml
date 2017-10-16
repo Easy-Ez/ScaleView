@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ScaleView</string>
     <string name="next_step">下一步</string>
+    <string name="prev_step">上一步</string>
     <string name="height_value">%1$.1f厘米</string>
+    <string name="weight_value">%1$.1fkg</string>
     <string name="height">身高</string>
 </resources>
