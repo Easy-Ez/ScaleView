@@ -1,7 +1,7 @@
 # ScaleView
 定制性较高的横向滑动的卷尺
 
-![test](http://7xt745.com1.z0.glb.clouddn.com/2017_10_16_14_16_38_14_57_50.gif)
+![test](https://github.com/sh1tge/ScaleView/raw/master/screenshots/2017_10_16_14_16_38_14_57_50.gif)
 
 # Example 
 
@@ -34,7 +34,7 @@
 ```
 下图是上面xml展示的样式
 
-<img src="http://7xt745.com1.z0.glb.clouddn.com/layout-2017-10-16-154100.png" width="384" height="640">
+<img src="https://github.com/sh1tge/ScaleView/raw/master/screenshots/layout-2017-10-16-154100.png" width="384" height="640">
 
 
 下表是所有属性及其含义
