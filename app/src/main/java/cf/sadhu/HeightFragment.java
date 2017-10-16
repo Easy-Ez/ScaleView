@@ -1,4 +1,4 @@
-package cf.sadhu.scaleview;
+package cf.sadhu;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

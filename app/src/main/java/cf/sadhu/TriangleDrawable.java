@@ -1,4 +1,4 @@
-package cf.sadhu.scaleview;
+package cf.sadhu;
 
 import android.content.Context;
 import android.graphics.Canvas;

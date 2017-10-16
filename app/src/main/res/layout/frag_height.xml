@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cf.sadhu.scaleview.MainActivity">
+    tools:context="cf.sadhu.MainActivity">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -37,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@id/tv_height_label"
         tools:text="70厘米" />
 
-    <cf.sadhu.scaleview.ScaleView
+    <cf.sadhu.ScaleView
         android:id="@+id/sacleview"
         android:layout_width="match_parent"
         android:layout_height="84dp"

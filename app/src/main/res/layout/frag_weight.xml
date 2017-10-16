@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cf.sadhu.scaleview.MainActivity">
+    tools:context="cf.sadhu.MainActivity">
 
 
     <TextView
@@ -18,7 +18,7 @@
         app:layout_constraintRight_toRightOf="parent"
         tools:text="70" />
 
-    <cf.sadhu.scaleview.ScaleView
+    <cf.sadhu.ScaleView
         android:id="@+id/sacleview"
         android:layout_width="match_parent"
         android:layout_height="70dp"
